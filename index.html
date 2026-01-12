@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee with Arsh!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::after {
+            content: '☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            font-size: 50px;
+            opacity: 0.05;
+            word-wrap: break-word;
+            line-height: 100px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .name {
+            color: #764ba2;
+            font-weight: 600;
+        }
+
+        .details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+        }
+
+        .details p {
+            margin: 10px 0;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        .details strong {
+            color: #667eea;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .success {
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success h2 {
+            color: #10b981;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .success p {
+            font-size: 1.3em;
+            color: #555;
+        }
+
+        .coffee-emoji {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="invitation">
+            <h1>☕ Coffee with Arsh!</h1>
+            <div class="question">
+                Hey <span class="name">Zoe</span>!
+            </div>
+            <div class="details">
+                <p><strong>When:</strong> Thursday the 15th at 12:30 PM</p>
+                <p><strong>Where:</strong> Mokafe</p>
+            </div>
+            <p style="font-size: 1.2em; margin-bottom: 30px; color: #666;">
+                Are you willing to go for coffee?
+            </p>
+            <div class="buttons">
+                <button onclick="respond()">Yes</button>
+                <button onclick="respond()">Yes</button>
+            </div>
+        </div>
+        <div class="success" id="success">
+            <div class="coffee-emoji">🎉</div>
+            <h2>Congrats!</h2>
+            <p>All done!</p>
+        </div>
+    </div>
+
+    <script>
+        function respond() {
+            document.querySelector('.invitation').style.display = 'none';
+            document.getElementById('success').classList.add('show');
+        }
+    </script>
+</body>
+</html>
