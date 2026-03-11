@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffee with Arsh!</title>
+
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -13,13 +17,44 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: white;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
             position: relative;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           BACKGROUND IMAGE SETUP
+           Replace the URL below with your image path:
+           - Local file:  url('photo.jpg')
+           - Online link: url('https://example.com/photo.jpg')
+           ============================================ */
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 👇 CHANGE THIS to your image path 👇 */
+            background-image: url('your-photo-here.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 1;
         }
 
         body::after {
@@ -34,21 +69,21 @@
             word-wrap: break-word;
             line-height: 100px;
             pointer-events: none;
-            z-index: 0;
+            z-index: 2;
         }
 
         .container {
             background: white;
             border-radius: 20px;
             padding: 50px;
-            max-width: 500px;
+            max-width: 520px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             text-align: center;
             transform: translateY(0);
             transition: all 0.3s ease;
             position: relative;
-            z-index: 1;
+            z-index: 3;
         }
 
         .container:hover {
@@ -98,8 +133,8 @@
             justify-content: center;
         }
 
-        button {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+        .btn-yes {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
             padding: 18px 50px;
@@ -108,114 +143,283 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
 
-        button:hover {
+        .btn-yes:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
         }
 
-        button:active {
+        .btn-no {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-no:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+        }
+
+        .btn-yes:active,
+        .btn-no:active {
             transform: translateY(-1px);
         }
 
-        .success {
+        .btn-yes:disabled,
+        .btn-no:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .response-msg {
             display: none;
         }
 
-        .success.show {
+        .response-msg.show {
             display: block;
             animation: fadeIn 0.5s ease;
         }
 
-        .success h2 {
+        .response-msg h2 {
+            font-size: 2.2em;
+            margin-bottom: 15px;
+        }
+
+        .response-msg h2.accepted {
             color: #10b981;
-            font-size: 2.5em;
-            margin-bottom: 20px;
         }
 
-        .success p {
-            font-size: 1.3em;
+        .response-msg h2.declined {
+            color: #ef4444;
+        }
+
+        .response-msg p {
+            font-size: 1.2em;
             color: #555;
+            line-height: 1.6;
         }
 
-        .coffee-emoji {
+        .response-emoji {
             font-size: 4em;
             margin-bottom: 20px;
             animation: bounce 1s infinite;
         }
 
+        .sending-notice {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #999;
+            font-style: italic;
+        }
+
+        .status-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 14px 28px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 1em;
+            z-index: 9999;
+            transition: transform 0.4s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .status-toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .status-toast.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .status-toast.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.9); }
+            to   { opacity: 1; transform: scale(1); }
         }
 
         @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-10px); }
         }
 
         @media (max-width: 600px) {
-            .container {
-                padding: 30px;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            .buttons {
-                flex-direction: column;
-            }
-
-            button {
-                width: 100%;
-            }
+            .container { padding: 30px; }
+            h1 { font-size: 2em; }
+            .buttons { flex-direction: column; }
+            .btn-yes, .btn-no { width: 100%; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Background image layer -->
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <!-- Toast notification -->
+    <div class="status-toast" id="statusToast"></div>
+
     <div class="container">
-        <div class="invitation">
+
+        <!-- Invitation content -->
+        <div class="invitation" id="invitation">
             <h1>☕ Coffee with Arsh!</h1>
+
             <div class="question">
-                Hey <span class="name">Amanda</span>!
+                Hey <span class="name">Ava</span>!
             </div>
+
             <div class="details">
-                <p><strong>When:</strong> Friday at 3:30 PM</p>
-                <p><strong>Where:</strong> Moka & Co., Astoria</p>
+                <p><strong>When:</strong> Friday at 7:30 PM</p>
+                <p><strong>Where:</strong> Haraz Coffee House, 210 Spring St, New York, NY 10012</p>
             </div>
+
             <p style="font-size: 1.2em; margin-bottom: 30px; color: #666;">
-                Are you willing to go for coffee?
+                I know your existence is confined b/w 110th and 120th, but are you willing to go for coffee?
             </p>
+
             <div class="buttons">
-                <button onclick="respond()">Yes</button>
-                <button onclick="respond()">Yes</button>
+                <button class="btn-yes" id="btnYes" onclick="respond('yes')">Yes ☕</button>
+                <button class="btn-no"  id="btnNo"  onclick="respond('no')">No 😢</button>
             </div>
         </div>
-        <div class="success" id="success">
-            <div class="coffee-emoji">🎉</div>
-            <h2>Congrats!</h2>
-            <p>All done!</p>
+
+        <!-- Accepted response -->
+        <div class="response-msg" id="acceptedMsg">
+            <div class="response-emoji">🎉</div>
+            <h2 class="accepted">Yay! It's a Date!</h2>
+            <p>Can't wait to see you Friday at 7:30 PM!<br>
+               See you at Haraz Coffee House ☕</p>
+            <p class="sending-notice" id="sendingYes">📧 Sending confirmation...</p>
         </div>
+
+        <!-- Declined response -->
+        <div class="response-msg" id="declinedMsg">
+            <div class="response-emoji">😔</div>
+            <h2 class="declined">Maybe Next Time!</h2>
+            <p>That's okay, I'll save you a virtual coffee ☕<br>
+               Hopefully we can catch up soon!</p>
+            <p class="sending-notice" id="sendingNo">📧 Sending your response...</p>
+        </div>
+
     </div>
 
     <script>
-        function respond() {
-            document.querySelector('.invitation').style.display = 'none';
-            document.getElementById('success').classList.add('show');
+        // =============================================
+        //  EMAILJS SETUP — Follow these steps:
+        //
+        //  1. Go to https://www.emailjs.com and sign up (free)
+        //
+        //  2. Add an Email Service:
+        //     Dashboard → Email Services → Add New → Gmail
+        //     Connect your Gmail and note the SERVICE ID
+        //
+        //  3. Create an Email Template:
+        //     Dashboard → Email Templates → Create New
+        //     Set "To Email" to: fnu2800@gmail.com
+        //     Subject:  Coffee RSVP: {{status}} from {{guest_name}}
+        //     Body:
+        //       Guest: {{guest_name}}
+        //       Response: {{status}}
+        //       Date: {{event_date}}
+        //       Location: {{event_location}}
+        //       Responded at: {{timestamp}}
+        //     Note the TEMPLATE ID
+        //
+        //  4. Get your Public Key:
+        //     Dashboard → Account → API Keys → Public Key
+        //
+        //  5. Replace the three values below:
+        // =============================================
+
+        const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';      // ← Replace
+        const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';      // ← Replace
+        const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';    // ← Replace
+
+        // Guest info (change per person you send this to)
+        const GUEST_NAME = 'Ava';
+
+        // Initialize EmailJS
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
+        function respond(answer) {
+            const isYes = answer === 'yes';
+
+            // Disable buttons immediately
+            document.getElementById('btnYes').disabled = true;
+            document.getElementById('btnNo').disabled = true;
+
+            // Hide invitation, show response
+            document.getElementById('invitation').style.display = 'none';
+
+            if (isYes) {
+                document.getElementById('acceptedMsg').classList.add('show');
+            } else {
+                document.getElementById('declinedMsg').classList.add('show');
+            }
+
+            // Send email via EmailJS
+            const templateParams = {
+                guest_name: GUEST_NAME,
+                status: isYes ? '✅ ACCEPTED' : '❌ DECLINED',
+                event_date: 'Friday at 7:30 PM',
+                event_location: 'Haraz Coffee House, 210 Spring St, New York, NY 10012',
+                timestamp: new Date().toLocaleString()
+            };
+
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                .then(function () {
+                    // Update sending notice
+                    const notice = isYes
+                        ? document.getElementById('sendingYes')
+                        : document.getElementById('sendingNo');
+                    notice.textContent = '✅ Response sent successfully!';
+                    notice.style.color = '#10b981';
+
+                    showToast('Email sent successfully!', 'success');
+                })
+                .catch(function (error) {
+                    console.error('EmailJS Error:', error);
+
+                    const notice = isYes
+                        ? document.getElementById('sendingYes')
+                        : document.getElementById('sendingNo');
+                    notice.textContent = '⚠️ Could not send email. Your response was recorded.';
+                    notice.style.color = '#ef4444';
+
+                    showToast('Email failed — check console for details', 'error');
+                });
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById('statusToast');
+            toast.textContent = message;
+            toast.className = 'status-toast ' + type;
+
+            // Trigger show
+            setTimeout(() => toast.classList.add('show'), 50);
+
+            // Auto-hide
+            setTimeout(() => toast.classList.remove('show'), 4000);
         }
     </script>
+
 </body>
 </html>
