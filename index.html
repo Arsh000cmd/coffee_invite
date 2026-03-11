@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffee with Arsh!</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
     <style>
         /* ============================================
            CONFIGURATION VARIABLES
@@ -38,6 +36,7 @@
             position: relative;
         }
 
+        /* Subtle coffee emoji pattern overlay */
         body::after {
             content: '☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕ ☕';
             position: absolute;
@@ -53,6 +52,7 @@
             z-index: 1;
         }
 
+        /* The transparent center box */
         .container {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(5px);
@@ -102,6 +102,7 @@
             filter: blur(0px);
         }
 
+        /* Responsiveness */
         @media (max-width: 1200px) {
             .container::before,
             .container::after {
@@ -273,7 +274,6 @@
     <div class="status-toast" id="statusToast"></div>
 
     <div class="container">
-
         <div class="invitation" id="invitation">
             <h1>☕ Coffee with Arsh!</h1>
 
@@ -311,31 +311,24 @@
                Hopefully we can catch up soon!</p>
             <p class="sending-notice" id="sendingNo">📧 Sending your response...</p>
         </div>
-
     </div>
 
     <script>
         // =============================================
-        //  EMAILJS SETUP 
+        //  FORM SUBMIT LOGIC (No keys required)
         // =============================================
-
-        // All 3 of your correct keys are now securely in place!
-        const EMAILJS_PUBLIC_KEY = 'gnIta7wT0PDofrk_6';      
-        const EMAILJS_SERVICE_ID = 'service_0xndbcm';      
-        const EMAILJS_TEMPLATE_ID = 'template_bh0n7mh';    
-
-        // Guest info
+        
         const GUEST_NAME = 'Ava';
-
-        // Initialize EmailJS
-        emailjs.init(EMAILJS_PUBLIC_KEY);
+        const YOUR_EMAIL = 'fnu2800@gmail.com'; // FormSubmit will route here
 
         function respond(answer) {
             const isYes = answer === 'yes';
 
+            // Disable buttons immediately
             document.getElementById('btnYes').disabled = true;
             document.getElementById('btnNo').disabled = true;
 
+            // Hide invitation, show response
             document.getElementById('invitation').style.display = 'none';
 
             if (isYes) {
@@ -344,36 +337,43 @@
                 document.getElementById('declinedMsg').classList.add('show');
             }
 
-            // These variables MUST match the {{variable_name}} tags inside your EmailJS Template Body
-            const templateParams = {
-                guest_name: GUEST_NAME,
-                status: isYes ? '✅ ACCEPTED' : '❌ DECLINED',
-                event_date: 'Friday at 7:30 PM',
-                event_location: 'Haraz Coffee House, 210 Spring St, New York, NY 10012',
-                timestamp: new Date().toLocaleString()
-            };
-
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(function () {
-                    const notice = isYes
-                        ? document.getElementById('sendingYes')
-                        : document.getElementById('sendingNo');
-                    notice.textContent = '✅ Response sent successfully!';
-                    notice.style.color = '#10b981';
-
-                    showToast('Email sent successfully!', 'success');
+            // Send the email silently using FormSubmit
+            fetch(`https://formsubmit.co/ajax/${YOUR_EMAIL}`, {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    Guest: GUEST_NAME,
+                    Response: isYes ? "✅ ACCEPTED" : "❌ DECLINED",
+                    Details: "Friday at 7:30 PM at Haraz Coffee House",
+                    _subject: `Coffee RSVP: ${isYes ? 'YES' : 'NO'} from ${GUEST_NAME}`
                 })
-                .catch(function (error) {
-                    console.error('EmailJS Error:', error);
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update sending notice to success
+                const notice = isYes
+                    ? document.getElementById('sendingYes')
+                    : document.getElementById('sendingNo');
+                notice.textContent = '✅ Response sent successfully!';
+                notice.style.color = '#10b981';
 
-                    const notice = isYes
-                        ? document.getElementById('sendingYes')
-                        : document.getElementById('sendingNo');
-                    notice.textContent = '⚠️ Could not send email. Your response was recorded.';
-                    notice.style.color = '#ef4444';
+                showToast('Email sent successfully!', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Update sending notice to error
+                const notice = isYes
+                    ? document.getElementById('sendingYes')
+                    : document.getElementById('sendingNo');
+                notice.textContent = '⚠️ Could not send email automatically.';
+                notice.style.color = '#ef4444';
 
-                    showToast('Email failed — check console for details', 'error');
-                });
+                showToast('Email failed to send.', 'error');
+            });
         }
 
         function showToast(message, type) {
