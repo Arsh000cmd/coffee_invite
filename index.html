@@ -319,7 +319,7 @@
         // =============================================
         
         const GUEST_NAME = 'Ava';
-        const YOUR_EMAIL = 'fnu2800@gmail.com'; // FormSubmit will route here
+        const YOUR_EMAIL = 'fnu2800@gmail.com'; 
 
         function respond(answer) {
             const isYes = answer === 'yes';
@@ -348,12 +348,12 @@
                     Guest: GUEST_NAME,
                     Response: isYes ? "✅ ACCEPTED" : "❌ DECLINED",
                     Details: "Friday at 7:30 PM at Haraz Coffee House",
-                    _subject: `Coffee RSVP: ${isYes ? 'YES' : 'NO'} from ${GUEST_NAME}`
+                    _subject: `Coffee RSVP: ${isYes ? 'YES' : 'NO'} from ${GUEST_NAME}`,
+                    _captcha: "false" // Bypasses the invisible Captcha block
                 })
             })
             .then(response => response.json())
             .then(data => {
-                // Update sending notice to success
                 const notice = isYes
                     ? document.getElementById('sendingYes')
                     : document.getElementById('sendingNo');
@@ -365,7 +365,6 @@
             .catch(error => {
                 console.error('Error:', error);
                 
-                // Update sending notice to error
                 const notice = isYes
                     ? document.getElementById('sendingYes')
                     : document.getElementById('sendingNo');
